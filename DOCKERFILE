@@ -1,0 +1,99 @@
+# Use the official Node.js LTS image as the base image
+FROM node:18.17.0-bookworm
+
+# Install required dependencies
+RUN apt-get update && \
+    apt-get install -y \
+        sudo \
+        nano \
+        git \
+        build-essential \
+        python3-minimal \
+        libpng-dev \
+        libvhdi-utils \
+        lvm2 \
+        cifs-utils \
+        redis-server \
+        nfs-common \
+        curl
+
+
+# Clone the Xen Orchestra repository from GitHub
+RUN git clone -b master https://github.com/vatesfr/xen-orchestra
+
+# Set working directory
+WORKDIR /xen-orchestra
+
+# Install the dependencies using yarn
+RUN yarn
+
+# Build Xen Orchestra
+RUN yarn build
+
+# Set the working directory in the container
+WORKDIR /xen-orchestra/packages/xo-server
+
+# Xo-server directory
+RUN mkdir -p /xen-orchestra/packages/.config/xo-server
+
+# Remove defualt Sample config
+RUN rm -r /xen-orchestra/packages/xo-server/sample.config.toml
+
+# Copy new samile file in
+COPY sample.config.toml /xen-orchestra/packages/xo-server/sample.config.toml
+
+# Copy the sample.config.toml to the config.toml file
+RUN cp sample.config.toml /xen-orchestra/packages/.config/xo-server/config.toml
+
+# Setup Plugins
+RUN ln -s /xen-orchestra/packages/xo-server-transport-email /usr/local/lib/node_modules/ && \
+    ln -s /xen-orchestra/packages/xo-server-sdn-controller /usr/local/lib/node_modules/ && \
+    ln -s /xen-orchestra/packages/xo-server-perf-alert /usr/local/lib/node_modules/ && \
+    ln -s /xen-orchestra/packages/xo-server-transport-icinga2 /usr/local/lib/node_modules/ && \
+    ln -s /xen-orchestra/packages/xo-server-transport-nagios /usr/local/lib/node_modules/ && \
+    ln -s /xen-orchestra/packages/xo-server-transport-slack /usr/local/lib/node_modules/ && \
+    ln -s /xen-orchestra/packages/xo-server-transport-xmpp /usr/local/lib/node_modules/ && \
+    ln -s /xen-orchestra/packages/xo-server-load-balancer /usr/local/lib/node_modules/ && \
+    ln -s /xen-orchestra/packages/xo-server-backup-reports /usr/local/lib/node_modules/ && \
+    ln -s /xen-orchestra/packages/xo-server-auth-ldap /usr/local/lib/node_modules/ && \
+    ln -s /xen-orchestra/packages/xo-server-auth-google /usr/local/lib/node_modules/ && \
+    ln -s /xen-orchestra/packages/xo-server-auth-github /usr/local/lib/node_modules/ && \
+    ln -s /xen-orchestra/packages/xo-server-auth-saml /usr/local/lib/node_modules/ && \
+    ln -s /xen-orchestra/packages/xo-server-netbox /usr/local/lib/node_modules/ && \
+    ln -s /xen-orchestra/packages/xo-server-usage-report /usr/local/lib/node_modules/ && \
+    ln -s /xen-orchestra/packages/xo-server-web-hooks /usr/local/lib/node_modules/ && \
+    ln -s /xen-orchestra/packages/xo-server-audit /usr/local/lib/node_modules/
+
+# Remove defualt Redis config
+RUN rm -r /etc/redis/redis.conf
+
+# Copy new redis config in
+COPY redis.conf /etc/redis/redis.conf
+
+# Copy startup script
+COPY start.sh /
+
+# Make start up exacutable
+RUN chmod +x /start.sh
+
+# Local area for iso
+RUN mkdir /mnt/iso
+
+# Local area for backup
+RUN mkdir /mnt/data
+
+# Set the working directory for CMD
+WORKDIR /xen-orchestra
+
+# Volumes to persist
+VOLUME /var/lib/xo-server
+VOLUME /xen-orchestra
+VOLUME /mnt/iso
+VOLUME /mnt/data
+
+# Expose the Xen Orchestra port (Change this port if needed)
+EXPOSE 80
+EXPOSE 443
+
+# Start Xen Orchestra with the bind mount
+CMD ["/start.sh"]
