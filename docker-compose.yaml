@@ -1,0 +1,24 @@
+version: "3"
+services:
+
+  xenorchestra:
+    container_name: xen-orchestra
+    image: brodiecyber/xen-orchestra:latest
+    hostname: xen-orchestra
+    ports:
+      - 9443:443
+      - 8080:80
+    volumes:
+      - xo-config:/var/lib/xo-server
+      - xo-files:/xen-orchestra
+      - xo-yaml:/etc/xo-server/config
+      - redis:/var/lib/redis
+      - /home/serveradmin/config/xen-orchestra/iso:/mnt/iso
+      - /home/serveradmin/config/xen-orchestra/data:/mnt/data
+    restart: unless-stopped
+
+volumes:
+  xo-config:
+  xo-files:
+  xo-yaml:
+  redis: 
