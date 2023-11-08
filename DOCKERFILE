@@ -24,6 +24,9 @@ RUN git clone -b master https://github.com/vatesfr/xen-orchestra
 # Set working directory
 WORKDIR /xen-orchestra
 
+# Prevent yarn from timing out
+RUN yarn config set network-timeout 200000
+
 # Install the dependencies using yarn
 RUN yarn
 
@@ -34,16 +37,16 @@ RUN yarn build
 WORKDIR /xen-orchestra/packages/xo-server
 
 # Xo-server directory
-RUN mkdir -p /xen-orchestra/packages/.config/xo-server
+RUN mkdir -p /etc/xo-server
 
 # Remove defualt Sample config
 RUN rm -r /xen-orchestra/packages/xo-server/sample.config.toml
 
-# Copy new samile file in
+# Copy new sampile file in
 COPY sample.config.toml /xen-orchestra/packages/xo-server/sample.config.toml
 
 # Copy the sample.config.toml to the config.toml file
-RUN cp sample.config.toml /xen-orchestra/packages/.config/xo-server/config.toml
+RUN cp sample.config.toml /etc/xo-server/config.toml
 
 # Setup Plugins
 RUN ln -s /xen-orchestra/packages/xo-server-transport-email /usr/local/lib/node_modules/ && \
@@ -76,6 +79,18 @@ COPY start.sh /
 # Make start up exacutable
 RUN chmod +x /start.sh
 
+# Add Xen Orchestra as a service
+RUN yarn global add forever
+
+# Add Xen Orchestra as a forever-serivce
+RUN yarn global add forever-service
+
+# Set working direcotry
+WORKDIR /xen-orchestra/packages/xo-server/
+
+# Create Xen Orchestra service
+RUN forever-service install orchestra -r root -s dist/cli.mjs
+
 # Local area for iso
 RUN mkdir /mnt/iso
 
@@ -88,6 +103,7 @@ WORKDIR /xen-orchestra
 # Volumes to persist
 VOLUME /var/lib/xo-server
 VOLUME /xen-orchestra
+VOLUME /run/xo-server
 VOLUME /mnt/iso
 VOLUME /mnt/data
 
