@@ -2,21 +2,53 @@ version: "3"
 services:
 
   xenorchestra:
+
+    # Set friendly docker container name
     container_name: xen-orchestra
+
+    # state image
     image: brodiecyber/xen-orchestra:latest
+
+    # Set contaier hostname
     hostname: xen-orchestra
+
+    # Needed to mount nfs shares
+    privileged: true
+
     ports:
+
+      # HTTPS port
       - 9443:443
+
+      # HTTP port
       - 8080:80
+
     volumes:
+
+      # Location of Xen orchestra persistant configuration
       - xo-config:/var/lib/xo-server
+
+      # Location of Xen orchestra Files
       - xo-files:/xen-orchestra
+
+      # Xen orchestra base config yaml
       - xo-yaml:/etc/xo-server/config
+
+      # Redis data volume
       - redis:/var/lib/redis
+
+      #Temporary not being used yet
       - /home/serveradmin/config/xen-orchestra/iso:/mnt/iso
+ 
+      # Can be on disk of vm backups
+      # path on host to disk or with docker volumes can be mounted as nfs 
+      # or just add nfs as a remote in xen-orchestra
       - /home/serveradmin/config/xen-orchestra/data:/mnt/data
+
+    # Always restart container unles stopped by administrator 
     restart: unless-stopped
 
+# Persistant to create volumes for xen orchestra data
 volumes:
   xo-config:
   xo-files:
