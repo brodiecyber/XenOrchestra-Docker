@@ -33,6 +33,9 @@ services:
 
       # Xen orchestra base config yaml
       - xo-yaml:/etc/xo-server/config
+      
+      # Xen orchestra remotes mount location
+      - xo-remotes:/run/xo-server
 
       # Redis data volume
       - redis:/var/lib/redis
@@ -53,4 +56,5 @@ volumes:
   xo-config:
   xo-files:
   xo-yaml:
+  xo-remotes:
   redis: 
