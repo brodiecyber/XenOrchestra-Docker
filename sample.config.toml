@@ -163,9 +163,6 @@ port = 443
 # Default: redis://localhost:6379/0
 #uri = 'redis://redis.company.lan/42'
 
-#Redis Connection
-uri = 'redis://127.0.0.1:6379/0'
-
 # List of aliased commands.
 #
 # See http://redis.io/topics/security#disabling-of-specific-commands
