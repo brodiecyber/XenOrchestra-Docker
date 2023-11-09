@@ -3,7 +3,6 @@
 # XenOrchestra-Docker
 
 Just trying to build my own Xen Orchestra docker image. with a focus on simpliciet and documentaion
-I intend to build images for both X86 and ARM64 (Just neeed to get a raspberry ip 4 2gb)
 
 Hardware requierments (Based on my experiance in the lab)
 
