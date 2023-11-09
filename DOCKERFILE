@@ -67,12 +67,6 @@ RUN ln -s /xen-orchestra/packages/xo-server-transport-email /usr/local/lib/node_
     ln -s /xen-orchestra/packages/xo-server-web-hooks /usr/local/lib/node_modules/ && \
     ln -s /xen-orchestra/packages/xo-server-audit /usr/local/lib/node_modules/
 
-# Remove defualt Redis config
-RUN rm -r /etc/redis/redis.conf
-
-# Copy new redis config in
-COPY redis.conf /etc/redis/redis.conf
-
 # Copy startup script
 COPY start.sh /
 
@@ -104,6 +98,7 @@ WORKDIR /xen-orchestra
 VOLUME /var/lib/xo-server
 VOLUME /xen-orchestra
 VOLUME /run/xo-server
+VOLUME /var/lib/redis
 VOLUME /mnt/iso
 VOLUME /mnt/data
 
